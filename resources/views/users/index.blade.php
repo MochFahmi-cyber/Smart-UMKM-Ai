@@ -15,18 +15,30 @@
         @include('partials.alerts')
         <div class="card shadow-sm">
             <div class="card-body">
-                <form method="GET" class="row g-3 mb-4">
-                    <div class="col-md-6">
+                <form method="GET" class="filter-bar mb-4">
+                    <div class="filter-search">
                         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Cari nama atau email">
                     </div>
-                    <div class="col-md-6 text-end">
-                        <button type="submit" class="btn btn-outline-primary">Cari</button>
-                        <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Reset</a>
+                    <div class="filter-select">
+                        <select name="role" class="form-select">
+                            <option value="">Semua Role</option>
+                            <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kasir" {{ request('role') == 'kasir' ? 'selected' : '' }}>Kasir</option>
+                        </select>
+                    </div>
+                    <div class="filter-select">
+                        <select name="sort" class="form-select">
+                            <option value="name" {{ request('sort', 'name') == 'name' ? 'selected' : '' }}>A - Z</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                        </select>
+                    </div>
+                    <div class="filter-action">
+                        <a href="{{ route('users.index') }}" class="btn btn-outline-secondary" title="Reset Filter"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </form>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="usersTable">
-                        <thead>
+                    <table class="table table-hover align-middle border-0" id="usersTable">
+                        <thead class="text-secondary" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
                             <tr>
                                 <th>Nama</th>
                                 <th>Email</th>
@@ -38,18 +50,18 @@
                         <tbody>
                             @foreach($users as $user)
                                 <tr>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ ucfirst($user->role) }}</td>
-                                    <td>{{ $user->phone }}</td>
+                                    <td data-label="Nama">{{ $user->name }}</td>
+                                    <td data-label="Email">{{ $user->email }}</td>
+                                    <td data-label="Role">{{ ucfirst($user->role) }}</td>
+                                    <td data-label="Telepon">{{ $user->phone }}</td>
                                     <td class="text-end">
                                         <div class="crud-actions" role="group" aria-label="Aksi pengguna">
-                                        <a href="{{ route('users.show', $user) }}" class="btn btn-outline-secondary crud-action-btn" title="Lihat detail" aria-label="Lihat detail pengguna"><i class="bi bi-eye"></i></a>
-                                        <a href="{{ route('users.edit', $user) }}" class="btn btn-outline-primary crud-action-btn" title="Edit" aria-label="Edit pengguna"><i class="bi bi-pencil-square"></i></a>
-                                        <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Hapus pengguna ini?');">
+                                        <a href="{{ route('users.show', $user) }}" class="btn bg-secondary bg-opacity-10 text-secondary border-0 rounded-circle crud-action-btn" title="Lihat detail" aria-label="Lihat detail pengguna"><i class="bi bi-eye"></i></a>
+                                        <a href="{{ route('users.edit', $user) }}" class="btn bg-primary bg-opacity-10 text-primary border-0 rounded-circle crud-action-btn" title="Edit" aria-label="Edit pengguna"><i class="bi bi-pencil-square"></i></a>
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Hapus pengguna ini?');" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger crud-action-btn" title="Hapus" aria-label="Hapus pengguna"><i class="bi bi-trash"></i></button>
+                                            <button type="submit" class="btn bg-danger bg-opacity-10 text-danger border-0 rounded-circle crud-action-btn" title="Hapus" aria-label="Hapus pengguna"><i class="bi bi-trash"></i></button>
                                         </form>
                                         </div>
                                     </td>
@@ -65,17 +77,11 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            $(document).ready(function () {
-                $('#usersTable').DataTable({
-                    paging: false,
-                    info: false,
-                    searching: false,
-                    responsive: true,
-                    ordering: true,
-                });
-            });
-        </script>
+    @push('styles')
+<style>
+.table > :not(caption) > * > * {
+    padding: 1rem 1rem;
+}
+</style>
     @endpush
 </x-app-layout>

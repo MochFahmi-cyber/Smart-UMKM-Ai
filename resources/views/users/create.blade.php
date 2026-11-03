@@ -16,16 +16,20 @@
                     @csrf
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Nama</label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Misal: Agung Rahman" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" value="{{ old('email') }}" class="form-control" required>
+                            <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="contoh@email.com" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password" class="form-control" placeholder="Minimal 8 karakter" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Role</label>
@@ -35,8 +39,8 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Telepon</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
+                            <label class="form-label">Telepon (Opsional)</label>
+                            <input type="text" name="phone" value="{{ old('phone') }}" class="form-control" placeholder="Misal: 0812...">
                         </div>
                     </div>
                     <div class="mt-4 d-flex gap-2">

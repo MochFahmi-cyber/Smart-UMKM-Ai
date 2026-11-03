@@ -17,7 +17,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Nama Produk</label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
+                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Contoh: Kopi Hitam" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Kategori</label>
@@ -30,19 +30,19 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">SKU</label>
-                            <input type="text" name="sku" value="{{ old('sku') }}" class="form-control" required>
+                            <input type="text" name="sku" value="{{ old('sku') }}" class="form-control" placeholder="Contoh: KPH-01" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Stok</label>
-                            <input type="number" name="stock" min="0" value="{{ old('stock', 0) }}" class="form-control" required>
+                            <input type="number" name="stock" min="0" value="{{ old('stock', 0) }}" class="form-control" placeholder="Jumlah stok tersedia" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Harga Beli</label>
-                            <input type="number" name="purchase_price" min="0" step="0.01" value="{{ old('purchase_price', 0) }}" class="form-control" required>
+                            <input type="number" name="purchase_price" min="0" step="0.01" value="{{ old('purchase_price', 0) }}" class="form-control" placeholder="Harga beli/modal" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Harga Jual</label>
-                            <input type="number" name="sell_price" min="0" step="0.01" value="{{ old('sell_price', 0) }}" class="form-control" required>
+                            <input type="number" name="sell_price" min="0" step="0.01" value="{{ old('sell_price', 0) }}" class="form-control" placeholder="Harga jual ke pelanggan" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Status</label>

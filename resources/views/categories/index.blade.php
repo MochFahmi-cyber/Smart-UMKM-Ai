@@ -15,9 +15,23 @@
         @include('partials.alerts')
         <div class="card shadow-sm">
             <div class="card-body">
+                <form method="GET" class="filter-bar mb-4">
+                    <div class="filter-search">
+                        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Cari kategori">
+                    </div>
+                    <div class="filter-select">
+                        <select name="sort" class="form-select">
+                            <option value="name" {{ request('sort', 'name') == 'name' ? 'selected' : '' }}>A - Z</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                        </select>
+                    </div>
+                    <div class="filter-action">
+                        <a href="{{ route('categories.index') }}" class="btn btn-outline-secondary" title="Reset Filter"><i class="bi bi-arrow-clockwise"></i></a>
+                    </div>
+                </form>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="categoriesTable">
-                        <thead>
+                    <table class="table table-hover align-middle border-0" id="categoriesTable">
+                        <thead class="text-secondary" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
                             <tr>
                                 <th>Nama</th>
                                 <th>Deskripsi</th>
@@ -27,13 +41,13 @@
                         <tbody>
                             @foreach($categories as $category)
                                 <tr>
-                                    <td>{{ $category->name }}</td>
-                                    <td>{{ Str::limit($category->description, 80) }}</td>
+                                    <td data-label="Nama">{{ $category->name }}</td>
+                                    <td data-label="Deskripsi">{{ Str::limit($category->description, 80) }}</td>
                                     <td class="text-end">
     <div class="crud-actions" role="group" aria-label="Aksi kategori">
 
         <a href="{{ route('categories.show', $category) }}"
-           class="btn btn-outline-secondary crud-action-btn"
+           class="btn bg-secondary bg-opacity-10 text-secondary border-0 rounded-circle crud-action-btn"
            data-bs-toggle="tooltip"
            title="Lihat Detail"
            aria-label="Lihat detail kategori">
@@ -42,7 +56,7 @@
         </a>
 
         <a href="{{ route('categories.edit', $category) }}"
-           class="btn btn-outline-primary crud-action-btn"
+           class="btn bg-primary bg-opacity-10 text-primary border-0 rounded-circle crud-action-btn"
            data-bs-toggle="tooltip"
            title="Edit"
            aria-label="Edit kategori">
@@ -59,7 +73,7 @@
             @method('DELETE')
 
             <button type="submit"
-                    class="btn btn-outline-danger crud-action-btn"
+                    class="btn bg-danger bg-opacity-10 text-danger border-0 rounded-circle crud-action-btn"
                     data-bs-toggle="tooltip"
                     title="Hapus"
                     aria-label="Hapus kategori">
@@ -92,45 +106,12 @@
     box-shadow:0 15px 40px rgba(15,23,42,.08);
 }
 
-#categoriesTable thead th{
-    background:#f8fafc;
-    border-bottom:none;
-    color:#64748b;
-    font-size:.85rem;
-    text-transform:uppercase;
-    letter-spacing:.5px;
-}
-
-#categoriesTable tbody tr{
-    transition:.2s;
-}
-
-#categoriesTable tbody tr:hover{
-    background:#f8fbff;
-}
-
-#categoriesTable td{
-    vertical-align:middle;
-}
-
-.pagination{
-    justify-content:center;
+.table > :not(caption) > * > * {
+    padding: 1rem 1rem;
 }
 
 </style>
 @endpush
 
-    @push('scripts')
-        <script>
-            $(document).ready(function () {
-                $('#categoriesTable').DataTable({
-                    paging: false,
-                    info: false,
-                    searching: false,
-                    responsive: true,
-                    ordering: true,
-                });
-            });
-        </script>
-    @endpush
+
 </x-app-layout>

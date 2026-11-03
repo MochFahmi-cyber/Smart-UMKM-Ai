@@ -22,6 +22,9 @@ class Transaction extends Model
         'change',
         'items_count',
         'notes',
+        'status',
+        'payment_proof',
+        'store_id',
     ];
 
     protected $casts = [
@@ -39,6 +42,11 @@ class Transaction extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function details(): HasMany

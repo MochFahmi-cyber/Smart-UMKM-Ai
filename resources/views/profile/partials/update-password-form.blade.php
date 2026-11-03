@@ -1,64 +1,50 @@
-<section class="profile-section">
-    <header class="profile-card__header">
-        <div class="profile-card__heading">
-            <div class="profile-card__icon">
-                <i class="bi bi-shield-lock-fill"></i>
-            </div>
-            <div>
-                <h2 class="profile-card__title">
-                    Keamanan Akun
-                </h2>
-
-                <p class="profile-card__description">
-                    Gunakan password yang kuat untuk menjaga keamanan akun Anda.
-                </p>
-            </div>
+<section>
+    <header class="d-flex align-items-start gap-3 mb-4">
+        <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0;">
+            <i class="bi bi-shield-lock-fill fs-4"></i>
         </div>
-        <div class="profile-card__badge profile-card__badge--muted">
-            <i class="bi bi-lock-fill me-1"></i>
-            {{ __('Security') }}
+        <div>
+            <h2 class="h5 mb-1">Keamanan Akun</h2>
+            <p class="text-muted small mb-0">Gunakan password yang kuat untuk menjaga keamanan akun Anda.</p>
         </div>
     </header>
 
-    <form method="post" action="{{ route('password.update') }}" class="profile-form">
+    <form method="post" action="{{ route('password.update') }}">
         @csrf
         @method('put')
 
-        <div class="profile-field">
-            <x-input-label for="update_password_current_password" value="Password Saat Ini" />
-            <div class="profile-card__input-wrap">
-                <x-text-input id="update_password_current_password" name="current_password" type="password" class="profile-card__input mt-0" autocomplete="current-password" />
-            </div>
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+        <div class="mb-3">
+            <label for="update_password_current_password" class="form-label">Password Saat Ini</label>
+            <input type="password" id="update_password_current_password" name="current_password" class="form-control" autocomplete="current-password" placeholder="Masukkan password lama Anda">
+            @error('current_password', 'updatePassword')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
         </div>
 
-        <div class="profile-field">
-            <x-input-label for="update_password_password" value="Password Baru" />
-            <div class="profile-card__input-wrap">
-                <x-text-input id="update_password_password" name="password" type="password" class="profile-card__input mt-0" autocomplete="new-password" />
-            </div>
-            <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+        <div class="mb-3">
+            <label for="update_password_password" class="form-label">Password Baru</label>
+            <input type="password" id="update_password_password" name="password" class="form-control" autocomplete="new-password" placeholder="Masukkan password baru Anda">
+            @error('password', 'updatePassword')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
         </div>
 
-        <div class="profile-field">
-            <x-input-label for="update_password_password_confirmation" value="Konfirmasi Password Baru" />
-            <div class="profile-card__input-wrap">
-                <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="profile-card__input mt-0" autocomplete="new-password" />
-            </div>
-            <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+        <div class="mb-4">
+            <label for="update_password_password_confirmation" class="form-label">Konfirmasi Password Baru</label>
+            <input type="password" id="update_password_password_confirmation" name="password_confirmation" class="form-control" autocomplete="new-password" placeholder="Ketik ulang password baru">
+            @error('password_confirmation', 'updatePassword')
+                <div class="text-danger small mt-1">{{ $message }}</div>
+            @enderror
         </div>
 
-        <div class="profile-card__footer">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <x-primary-button class="profile-action-btn profile-action-btn--primary">
-                    <i class="bi bi-shield-lock me-2"></i>
-                    {{ __('Save') }}
-                </x-primary-button>
+        <div class="d-flex align-items-center gap-3 mt-4 pt-3 border-top">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-shield-lock me-1"></i> Simpan Password
+            </button>
 
-                @if (session('status') === 'password-updated')
-                    <p class="profile-save-status"><i class="bi bi-check-circle-fill me-1"></i>Password berhasil diperbarui.</p>
-                @endif
-            </div>
+            @if (session('status') === 'password-updated')
+                <p class="text-success small mb-0 fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Password berhasil diperbarui.</p>
+            @endif
         </div>
     </form>
 </section>

@@ -138,12 +138,56 @@
 
 .premium-trigger:hover { background: rgba(250, 204, 21, .26); color: #fff; }
 .user-role + .premium-trigger { margin-left: .45rem; }
-.premium-plan { height: 100%; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.1rem; }
-.premium-plan--featured { border: 2px solid #2563eb; background: #eff6ff; }
-.premium-plan__price { color: #0f172a; font-size: 1.35rem; font-weight: 800; }
-.premium-plan__feature { display: flex; gap: .45rem; margin: .55rem 0; color: #475569; font-size: .86rem; }
-.premium-plan__feature i { color: #16a34a; }
-.premium-plan__trial { margin: .85rem 0; padding: .7rem .75rem; border: 1px solid #bfdbfe; border-radius: .75rem; background: #eff6ff; color: #1e40af; font-size: .8rem; line-height: 1.45; }
+.premium-plan { 
+    height: 100%; 
+    border: 1px solid var(--bs-border-color); 
+    border-radius: 16px; 
+    padding: 1.1rem; 
+    background-color: var(--bs-body-bg);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.premium-plan--featured { 
+    border: 2px solid #3b82f6; 
+    background-color: rgba(59, 130, 246, 0.05); 
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+}
+.premium-plan__price { 
+    color: var(--bs-heading-color); 
+    font-size: 1.35rem; 
+    font-weight: 800; 
+}
+.premium-plan__feature { 
+    display: flex; gap: .45rem; margin: .55rem 0; 
+    color: var(--bs-body-color); 
+    font-size: .86rem; 
+    opacity: 0.85;
+}
+.premium-plan__feature i { 
+    color: #22c55e; 
+}
+.premium-plan__feature i.text-danger { 
+    color: #ef4444 !important; 
+}
+.premium-plan__trial { 
+    margin: .85rem 0; padding: .7rem .75rem; 
+    border: 1px solid rgba(59, 130, 246, 0.3); 
+    border-radius: .75rem; 
+    background: rgba(59, 130, 246, 0.1); 
+    color: var(--bs-primary); 
+    font-size: .8rem; line-height: 1.45; 
+}
+[data-bs-theme="dark"] .premium-plan {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+[data-bs-theme="dark"] .premium-plan--featured {
+    background-color: rgba(59, 130, 246, 0.15);
+    border-color: #3b82f6;
+}
+[data-bs-theme="dark"] .premium-plan__trial {
+    color: #93c5fd;
+}
 
 
 
@@ -351,8 +395,8 @@
                         SMART UMKM AI
                     </div>
 
-                    <div class="small text-white-50 d-none d-sm-block">
-                        Point of Sale System
+                    <div class="small text-warning fw-bold mt-1">
+                        <i class="bi bi-shop me-1"></i> {{ auth()->user()->store->name ?? 'Point of Sale' }}
                     </div>
                 </div>
 
@@ -513,69 +557,46 @@
 
 
             <li class="nav-item mb-1">
-
                 <a class="nav-link d-flex align-items-center px-3 py-3 
                 {{ request()->routeIs('reports.*') ? 'active' : '' }}" 
                 href="{{ route('reports.index') }}">
-
                     <i class="bi bi-bar-chart-line-fill me-3"></i>
-
                     Laporan
-
                 </a>
-
             </li>
 
-
-
-
-
-            @if(auth()->check())
+            @if(auth()->user() && auth()->user()->role === 'admin')
+            <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center px-3 py-3 
+                {{ request()->routeIs('users.*') ? 'active' : '' }}" 
+                href="{{ route('users.index') }}">
+                    <i class="bi bi-person-gear me-3"></i>
+                    Pengguna
+                </a>
+            </li>
+            @endif
 
             <li class="nav-item mb-1">
+                <a class="nav-link d-flex align-items-center px-3 py-3 
+                {{ request()->routeIs('qr-kasir.*') ? 'active' : '' }}" 
+                href="{{ route('qr-kasir.index') }}">
+                    <i class="bi bi-qr-code-scan me-3"></i>
+                    QR Kasir
+                </a>
+            </li>
 
+            @if(auth()->check())
+            <li class="nav-item mb-1">
                 <a class="nav-link d-flex flex-column align-items-center justify-content-center px-3 py-3 
                 {{ request()->routeIs('ai-assistant.*') ? 'active' : '' }}" 
                 href="{{ route('ai-assistant.index') }}"
                 aria-label="AI Assistant"
                 title="AI Assistant">
-
-                    <img src="{{ asset('images/logo.png') }}"
-                         alt=""
-                         class="ai-assistant-logo">
-
+                    <img src="{{ asset('images/logo.png') }}" alt="" class="ai-assistant-logo">
                     <span class="ai-assistant-label">AI Asisten</span>
-
                 </a>
-
             </li>
-
             @endif
-
-
-
-
-
-
-            @if(strtolower(auth()->user()->role ?? '') === 'admin')
-
-            <li class="nav-item mb-1">
-
-                <a class="nav-link d-flex align-items-center px-3 py-3 
-                {{ request()->routeIs('users.*') ? 'active' : '' }}" 
-                href="{{ route('users.index') }}">
-
-                    <i class="bi bi-person-gear me-3"></i>
-
-                    Pengguna
-
-                </a>
-
-            </li>
-
-            @endif
-
-
         </ul>
 
 

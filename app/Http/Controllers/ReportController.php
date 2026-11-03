@@ -18,14 +18,17 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $storeId = auth()->user()->store_id;
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subMonth()->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
 
         $transactions = Transaction::with(['user', 'customer'])
+            ->where('store_id', $storeId)
             ->whereBetween('created_at', [$start, $end])
             ->orderByDesc('created_at')
             ->get();
         $cashFlows = CashFlow::with(['user', 'product'])
+            ->where('store_id', $storeId)
             ->whereBetween('created_at', [$start, $end])
             ->orderByDesc('created_at')
             ->get();
@@ -38,7 +41,7 @@ class ReportController extends Controller
 
         $history = $this->history($transactions, $cashFlows);
         $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 15;
+        $perPage = 10;
         $entries = new LengthAwarePaginator(
             $history->forPage($page, $perPage)->values(),
             $history->count(),
@@ -55,6 +58,7 @@ class ReportController extends Controller
         CashFlow::create([
             ...$request->validated(),
             'user_id' => auth()->id(),
+            'store_id' => auth()->user()->store_id,
         ]);
 
         return redirect()->route('reports.index')->with('success', 'Mutasi kas berhasil dicatat.');
@@ -65,6 +69,7 @@ class ReportController extends Controller
         $start = Carbon::parse($request->start)->startOfDay();
         $end = Carbon::parse($request->end)->endOfDay();
         $transactions = Transaction::with(['user', 'customer'])
+            ->where('store_id', auth()->user()->store_id)
             ->whereBetween('created_at', [$start, $end])
             ->get();
 
@@ -83,9 +88,10 @@ class ReportController extends Controller
 
     private function cashBalanceBefore(Carbon $start): float
     {
-        $sales = (float) Transaction::where('created_at', '<', $start)->sum('total');
-        $capital = (float) CashFlow::where('created_at', '<', $start)->where('type', CashFlow::CAPITAL)->sum('amount');
-        $expenses = (float) CashFlow::where('created_at', '<', $start)
+        $storeId = auth()->user()->store_id;
+        $sales = (float) Transaction::where('store_id', $storeId)->where('created_at', '<', $start)->sum('total');
+        $capital = (float) CashFlow::where('store_id', $storeId)->where('created_at', '<', $start)->where('type', CashFlow::CAPITAL)->sum('amount');
+        $expenses = (float) CashFlow::where('store_id', $storeId)->where('created_at', '<', $start)
             ->whereIn('type', [CashFlow::EXPENSE, CashFlow::STOCK_PURCHASE])
             ->sum('amount');
 
@@ -97,17 +103,18 @@ class ReportController extends Controller
      */
     private function buildBusinessHealth(Carbon $start, Carbon $end, float $sales, float $capital, float $expenses, float $openingBalance): array
     {
+        $storeId = auth()->user()->store_id;
         $days = max(1, $start->diffInDays($end) + 1);
         $previousEnd = $start->copy()->subDay()->endOfDay();
         $previousStart = $previousEnd->copy()->subDays($days - 1)->startOfDay();
-        $previousSales = (float) Transaction::whereBetween('created_at', [$previousStart, $previousEnd])->sum('total');
+        $previousSales = (float) Transaction::where('store_id', $storeId)->whereBetween('created_at', [$previousStart, $previousEnd])->sum('total');
         $salesChange = $previousSales > 0
             ? round((($sales - $previousSales) / $previousSales) * 100, 1)
             : ($sales > 0 ? 100.0 : 0.0);
         $cashChange = $sales + $capital - $expenses;
         $closingBalance = $openingBalance + $cashChange;
         $expenseRatio = $sales > 0 ? round(($expenses / $sales) * 100, 1) : null;
-        $lowStockCount = Product::where('stock', '<=', 5)->count();
+        $lowStockCount = Product::where('store_id', $storeId)->where('stock', '<=', 5)->count();
 
         $trend = $salesChange > 0 ? 'naik' : ($salesChange < 0 ? 'turun' : 'stabil');
         $score = 50;

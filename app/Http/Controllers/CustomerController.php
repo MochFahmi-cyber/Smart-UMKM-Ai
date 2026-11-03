@@ -11,11 +11,16 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $customers = Customer::when($request->q, function ($query, $q) {
-            $query->where('name', 'like', "%{$q}%")
-                ->orWhere('email', 'like', "%{$q}%")
-                ->orWhere('phone', 'like', "%{$q}%");
-        })->orderBy('name')->paginate(15)->withQueryString();
+        $customers = Customer::where('store_id', auth()->user()->store_id)
+        ->when($request->q, function ($query, $q) {
+            $query->where(function($qBuilder) use ($q) {
+                $qBuilder->where('name', 'like', "%{$q}%")
+                         ->orWhere('email', 'like', "%{$q}%")
+                         ->orWhere('phone', 'like', "%{$q}%");
+            });
+        })
+        ->orderBy($request->sort === 'newest' ? 'created_at' : 'name', $request->sort === 'newest' ? 'desc' : 'asc')
+        ->paginate(10)->withQueryString();
 
         return view('customers.index', compact('customers'));
     }
@@ -27,7 +32,11 @@ class CustomerController extends Controller
 
     public function store(StoreCustomerRequest $request)
     {
-        Customer::create($request->validated());
+        $data = $request->validated();
+        $data['store_id'] = auth()->user()->store_id;
+        $data['user_id'] = auth()->id();
+
+        Customer::create($data);
 
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil ditambahkan.');
     }

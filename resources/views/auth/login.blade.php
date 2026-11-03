@@ -11,14 +11,14 @@
 
         <div class="mb-4">
             <x-input-label for="email" :value="__('Email')" class="form-label" />
-            <x-text-input id="email" class="form-control form-control-lg" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-text-input id="email" class="form-control form-control-lg" type="email" name="email" :value="old('email')" placeholder="contoh@email.com" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <div class="mb-4">
             <x-input-label for="password" :value="__('Password')" class="form-label" />
             <div class="input-group input-group-lg">
-                <x-text-input id="password" class="form-control" type="password" name="password" required autocomplete="current-password" />
+                <x-text-input id="password" class="form-control" type="password" name="password" placeholder="Minimal 8 karakter" required autocomplete="current-password" />
                 <button id="togglePassword" class="btn btn-outline-secondary" type="button" title="Tampilkan password" aria-label="Tampilkan password" aria-pressed="false">
                     <i class="bi bi-eye"></i>
                 </button>

@@ -1915,9 +1915,141 @@ canvas {
 }
 
 /* ==========================================================
-   RESPONSIVE SAFEGUARDS
+   RESPONSIVE SAFEGUARDS & CARD TABLE UI
    Aturan lintas halaman untuk fitur baru maupun halaman lama.
    ========================================================== */
+   
+/* Premium Separated Row Table */
+.table {
+    border-collapse: separate !important;
+    border-spacing: 0 0.75rem !important;
+}
+.table thead, .table thead tr {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+.table thead th {
+    border: none !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    padding: 0 1.25rem 0.5rem 1.25rem !important;
+    background: transparent !important;
+    color: #94a3b8 !important; /* Slate 400 */
+}
+.table tbody tr {
+    border-radius: 12px;
+    transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+[data-bs-theme="dark"] .table tbody tr {
+    background-color: #1e293b !important; /* Slate 800 */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2) !important;
+}
+[data-bs-theme="dark"] .table tbody tr:hover {
+    transform: translateY(-2px);
+    background-color: #334155 !important; /* Slate 700 */
+    box-shadow: 0 6px 8px -1px rgba(0,0,0,0.3) !important;
+}
+[data-bs-theme="light"] .table tbody tr {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04) !important;
+    border: 1px solid #e2e8f0 !important;
+}
+[data-bs-theme="light"] .table tbody tr:hover {
+    transform: translateY(-2px);
+    background-color: #f8fafc !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.06) !important;
+}
+.table tbody td {
+    background: transparent !important;
+    border: none !important;
+    padding: 1.25rem !important;
+    vertical-align: middle;
+}
+[data-bs-theme="dark"] .table tbody td {
+    color: #f8fafc !important; /* Slate 50 */
+}
+.table tbody td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.table tbody td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* Filter Bar Responsive */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+.filter-search {
+    flex: 1 1 250px;
+    max-width: 350px;
+}
+.filter-select {
+    flex: 1 1 130px;
+    max-width: 180px;
+}
+.filter-action {
+    flex: 0 0 auto;
+}
+@media (max-width: 575.98px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-search, .filter-select, .filter-action {
+        max-width: 100%;
+        width: 100%;
+    }
+    .filter-action .btn {
+        width: 100%;
+    }
+}
+
+/* Mobile Stacked Table */
+@media (max-width: 767.98px) {
+    .table thead {
+        display: none !important;
+    }
+    .table, .table tbody, .table tr, .table td {
+        display: block !important;
+        width: 100% !important;
+    }
+    .table tbody tr {
+        margin-bottom: 0 !important;
+        padding: 1rem 0 !important;
+    }
+    .table tbody td {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 1rem !important;
+        padding: 0.5rem 0 !important;
+        text-align: right !important;
+    }
+    .table tbody td[data-label]::before {
+        content: attr(data-label);
+        flex: 0 0 45%;
+        text-align: left;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .table tbody td:last-child {
+        justify-content: flex-end !important;
+        padding-top: 1rem !important;
+        margin-top: 0.5rem !important;
+        border-top: 1px dashed var(--bs-border-color) !important;
+    }
+}
+
 .sales-chart-wrap {
     position: relative;
     height: clamp(15rem, 42vw, 20rem);

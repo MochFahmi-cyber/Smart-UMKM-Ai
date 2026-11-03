@@ -44,14 +44,13 @@ Point Of Sale
 
 
 <!-- PRODUK -->
-
-<div class="col-xl-5 pos-products-column">
-
+@php $hasCart = count($cart) > 0; @endphp
+<div class="col-12 {{ $hasCart ? 'col-lg-5 col-xl-5 order-2 order-lg-1' : '' }} pos-products-column" style="animation: fadeIn 0.4s ease-out;">
 
 <div class="card pos-card pos-product-panel">
 
 
-<div class="card-header bg-white border-0 pt-4 px-4">
+<div class="card-header bg-transparent border-0 pt-4 px-4">
 
 
 <div class="d-flex justify-content-between align-items-center">
@@ -78,25 +77,24 @@ Produk
 
 
 <div class="mt-3">
-
-<div class="input-group">
-
-<span class="input-group-text bg-light border-0">
-
-<i class="bi bi-search"></i>
-
-</span>
-
-
-<input 
-type="text"
-id="searchProduct"
-class="form-control bg-light border-0"
-placeholder="Cari produk...">
-
-
-</div>
-
+    <form method="GET" action="{{ route('pos.index') }}" class="d-flex flex-column flex-sm-row gap-2">
+        <select name="category" class="form-select bg-body-secondary border-0 flex-shrink-0" style="width: auto;" onchange="this.form.submit()">
+            <option value="">Semua Kategori</option>
+            @foreach($categories as $cat)
+                <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+            @endforeach
+        </select>
+        <div class="input-group">
+            <span class="input-group-text bg-body-secondary border-0">
+                <i class="bi bi-search"></i>
+            </span>
+            <input 
+                type="text"
+                id="searchProduct"
+                class="form-control bg-body-secondary border-0"
+                placeholder="Cari produk di kategori ini...">
+        </div>
+    </form>
 </div>
 
 
@@ -109,42 +107,33 @@ placeholder="Cari produk...">
 <div class="card-body px-4 pos-product-body">
 
 
-<div class="row g-2 g-sm-3 pos-product-grid" id="productList">
+<div class="row pos-product-grid g-3" id="productList">
 
 
 
 @foreach($products as $product)
 
+<div class="col-6 col-sm-4 {{ $hasCart ? 'col-md-4 col-lg-6 col-xl-6' : 'col-md-3 col-lg-2 col-xl-2' }} product-item">
+    <div class="card product-card h-100 w-100 p-2 text-center position-relative shadow-sm border-0">
 
-<div class="col-6 col-md-6 col-xl-6 product-item">
-
-    <div class="product-card">
-
-        <span class="stock-badge {{ $product->stock > 5 ? 'stock-good' : 'stock-low' }}">
-            {{ $product->stock }} Stok
-        </span>
-
-        <div class="product-icon">
-            <i class="bi bi-box-seam"></i>
+        <div class="position-absolute top-0 end-0 p-1">
+            <span class="badge {{ $product->stock > 5 ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger' }} rounded-pill" style="font-size: 0.65rem;">
+                {{ $product->stock }} Stok
+            </span>
         </div>
 
-        <div>
-
-            <div class="product-name">
-                {{ $product->name }}
+        <div class="text-center mb-2 flex-grow-1 mt-4 px-1">
+            <h6 class="product-name fw-bold mb-1 text-dark" style="font-size: 0.85rem; line-height: 1.2;">{{ $product->name }}</h6>
+            <div class="text-muted mb-1" style="font-size: 0.7rem;">{{ $product->sku }}</div>
+            <div class="mb-1">
+                <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.65rem;">
+                    {{ $product->category->name ?? 'Tanpa Kategori' }}
+                </span>
             </div>
-
-            <div class="product-sku">
-                SKU: {{ $product->sku }}
-            </div>
-
-            <div class="product-price">
-                Rp {{ number_format($product->sell_price,0,',','.') }}
-            </div>
-
+            <div class="text-primary fw-bold" style="font-size: 0.95rem;">Rp {{ number_format($product->sell_price,0,',','.') }}</div>
         </div>
 
-        <form action="{{ route('pos.cart.add') }}" method="POST">
+        <form action="{{ route('pos.cart.add') }}" method="POST" class="mt-auto">
 
     @csrf
 
@@ -159,7 +148,7 @@ placeholder="Cari produk...">
         value="1">
 
     <button
-        class="btn btn-primary btn-add-cart w-100"
+        class="btn btn-primary w-100 py-2 rounded-3 btn-sm"
         @disabled($product->stock < 1)>
 
         <i class="bi bi-cart-plus me-1"></i>
@@ -196,15 +185,14 @@ placeholder="Cari produk...">
 
 
 <!-- KERANJANG -->
-
-
-<div class="col-xl-7">
+@if($hasCart)
+<div class="col-12 col-lg-7 col-xl-7 order-1 order-lg-2 slide-in-right">
 
 
 <div class="card pos-card">
 
 
-<div class="card-header bg-white border-0 pt-4 px-4">
+<div class="card-header bg-transparent border-0 pt-4 px-4">
 
 
 <h5 class="fw-bold">
@@ -212,6 +200,10 @@ placeholder="Cari produk...">
 <i class="bi bi-basket text-success me-2"></i>
 
 Keranjang Belanja
+@php $totalQty = collect($cart)->sum('quantity'); @endphp
+@if($totalQty > 0)
+<span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.75rem;">{{ $totalQty }}</span>
+@endif
 
 </h5>
 
@@ -230,7 +222,7 @@ Keranjang Belanja
 <table class="table align-middle">
 
 
-<thead class="table-light">
+<thead>
 
 
 <tr>
@@ -287,31 +279,15 @@ Rp {{ number_format($item['price'],0,',','.') }}
 <td>
 
 
-<form action="{{ route('pos.cart.update',$item['id']) }}"
-method="POST"
-class="d-flex gap-2">
-
-@csrf
-
-@method('PATCH')
-
-
-<input 
-type="number"
-name="quantity"
-value="{{ $item['quantity'] }}"
-min="1"
-class="form-control form-control-sm"
-style="width:70px">
-
-
-<button class="btn btn-outline-primary btn-sm">
-
-<i class="bi bi-arrow-repeat"></i>
-
-</button>
-
-
+<form action="{{ route('pos.cart.update',$item['id']) }}" method="POST">
+    @csrf
+    @method('PATCH')
+    <div class="input-group input-group-sm" style="width: 100px;">
+        <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="form-control text-center" aria-label="Qty">
+        <button class="btn btn-outline-primary" type="submit" title="Update Qty">
+            <i class="bi bi-arrow-repeat"></i>
+        </button>
+    </div>
 </form>
 
 
@@ -564,6 +540,8 @@ Bayar Transaksi
 
 
 </div>
+@endif
+</div>
 
 
 </div>
@@ -578,13 +556,23 @@ Bayar Transaksi
 
 
 .pos-card{
-
 border:0;
-
 border-radius:22px;
-
 box-shadow:0 15px 40px rgba(15,23,42,.08);
+}
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slideInRight {
+    0% { transform: translateX(30px); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
 }
 
 /* Daftar produk tetap ringkas meski jumlah produk bertambah banyak. */
@@ -615,9 +603,9 @@ box-shadow:0 15px 40px rgba(15,23,42,.08);
 
 .product-card{
 
-background:#fff;
+background:var(--bs-tertiary-bg);
 
-border:1px solid #e2e8f0;
+border:1px solid var(--bs-border-color);
 
 padding:18px;
 
@@ -678,7 +666,10 @@ margin:5px 0 0;
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
+    min-height: 3.6em;
+    margin-bottom: 0.2rem;
+    word-break: normal;
 }
 
 .qris-payment-panel {
@@ -732,6 +723,13 @@ margin:5px 0 0;
     }
 }
 
+@media (min-width: 1200px) {
+    .pos-product-panel {
+        position: sticky;
+        top: 1rem;
+    }
+}
+
 </style>
 
 @endpush
@@ -747,7 +745,7 @@ margin:5px 0 0;
 
 
 document.getElementById('searchProduct')
-.addEventListener('keyup',function(){
+.addEventListener('input',function(){
 
 
 let value=this.value.toLowerCase();
@@ -764,7 +762,7 @@ let name=item.querySelector('.product-name')
 
 item.style.display=
 name.includes(value)
-?'block'
+?''
 :'none';
 
 
@@ -777,7 +775,7 @@ name.includes(value)
 
 
 
-const totalAmount={{$total}};
+const totalAmount={{ $total ?? 0 }};
 
 const paid=document.querySelector('input[name="paid"]');
 
@@ -800,15 +798,6 @@ function updatePaymentMethod() {
     const result=paid.value-totalAmount;
     change.value='Rp '+Math.max(result,0).toLocaleString('id-ID');
 }
-
-@media (min-width: 1200px) {
-    .pos-product-panel {
-        position: sticky;
-        top: 1rem;
-    }
-}
-
-
 
 paid.addEventListener('input',()=>{
 

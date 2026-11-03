@@ -66,7 +66,7 @@
         <section class="receipt">
             <header class="receipt-header">
                 <div>
-                    <h1 class="receipt-title">Smart UMKM AI</h1>
+                    <h1 class="receipt-title">{{ $transaction->store->name ?? 'Smart UMKM AI' }}</h1>
                     <p class="receipt-subtitle">Struk Transaksi</p>
                 </div>
                 <div class="receipt-meta">
@@ -104,10 +104,10 @@
                 <div class="summary-row"><span>Kembalian</span><strong>Rp {{ number_format($transaction->change, 0, ',', '.') }}</strong></div>
             </div>
 
-            @if($transaction->payment_method === 'qris')
+            @if($transaction->payment_method === 'qris' && $transaction->store && $transaction->store->qris_image)
                 <div class="qris-section">
                     <strong>Kode QRIS Pembayaran</strong><br>
-                    <img src="{{ asset($transaction->qris_image ?: 'images/qris.jpeg') }}" alt="Kode QRIS transaksi {{ $transaction->invoice }}" class="qris-image">
+                    <img src="{{ asset('storage/' . $transaction->store->qris_image) }}" alt="Kode QRIS transaksi {{ $transaction->invoice }}" class="qris-image">
                 </div>
             @endif
 

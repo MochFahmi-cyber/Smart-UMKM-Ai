@@ -14,21 +14,30 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::with('category')
+        $products = Product::with('category')->where('store_id', auth()->user()->store_id)
             ->when($request->q, function ($query, $q) {
-                $query->where('name', 'like', "%{$q}%")
-                    ->orWhere('sku', 'like', "%{$q}%");
+                $query->where(function($qBuilder) use ($q) {
+                    $qBuilder->where('name', 'like', "%{$q}%")
+                             ->orWhere('sku', 'like', "%{$q}%");
+                });
             })
-            ->orderBy('name')
-            ->paginate(15)
+            ->when($request->category, function($query, $categoryId) {
+                $query->where('category_id', $categoryId);
+            })
+            ->when($request->status, function($query, $status) {
+                $query->where('active', $status === 'active' ? 1 : 0);
+            })
+            ->orderBy($request->sort === 'newest' ? 'created_at' : 'name', $request->sort === 'newest' ? 'desc' : 'asc')
+            ->paginate(10)
             ->withQueryString();
 
-        return view('products.index', compact('products'));
+        $categories = \App\Models\Category::where('store_id', auth()->user()->store_id)->orderBy('name')->get();
+        return view('products.index', compact('products', 'categories'));
     }
 
     public function create()
     {
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::where('store_id', auth()->user()->store_id)->orderBy('name')->get();
 
         return view('products.create', compact('categories'));
     }
@@ -36,7 +45,15 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $product = DB::transaction(function () use ($request) {
-            $product = Product::create($request->validated());
+            $data = $request->validated();
+            $data['store_id'] = auth()->user()->store_id;
+            $data['user_id'] = auth()->id();
+            
+            if ($request->hasFile('image')) {
+                $data['image'] = $request->file('image')->store('products', 'public');
+            }
+            
+            $product = Product::create($data);
 
             $this->recordStockPurchase($product, $product->stock, (float) $product->purchase_price, 'Stok awal');
 
@@ -53,7 +70,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::where('store_id', auth()->user()->store_id)->orderBy('name')->get();
 
         return view('products.edit', compact('product', 'categories'));
     }
@@ -87,6 +104,7 @@ class ProductController extends Controller
         }
 
         CashFlow::create([
+            'store_id' => auth()->user()->store_id,
             'user_id' => auth()->id(),
             'product_id' => $product->id,
             'type' => CashFlow::STOCK_PURCHASE,

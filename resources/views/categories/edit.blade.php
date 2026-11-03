@@ -17,11 +17,11 @@
                     @method('PUT')
                     <div class="mb-3">
                         <label class="form-label">Nama Kategori</label>
-                        <input type="text" name="name" value="{{ old('name', $category->name) }}" class="form-control" required>
+                        <input type="text" name="name" value="{{ old('name', $category->name) }}" class="form-control" placeholder="Contoh: Minuman Dingin" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Slug</label>
-                        <input type="text" name="slug" value="{{ old('slug', $category->slug) }}" class="form-control" required>
+                        <input type="text" name="slug" value="{{ old('slug', $category->slug) }}" class="form-control" placeholder="Contoh: minuman-dingin" required>
                         @error('slug')
                             <div class="text-danger mt-1">{{ $message }}</div>
                         @enderror

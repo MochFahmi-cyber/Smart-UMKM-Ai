@@ -15,18 +15,23 @@
         @include('partials.alerts')
         <div class="card shadow-sm">
             <div class="card-body">
-                <form method="GET" class="row g-3 mb-4">
-                    <div class="col-md-6">
+                <form method="GET" class="filter-bar mb-4">
+                    <div class="filter-search">
                         <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="Cari nama, email, atau telepon">
                     </div>
-                    <div class="col-md-6 text-end">
-                        <button type="submit" class="btn btn-outline-primary">Cari</button>
-                        <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary">Reset</a>
+                    <div class="filter-select">
+                        <select name="sort" class="form-select">
+                            <option value="name" {{ request('sort', 'name') == 'name' ? 'selected' : '' }}>A - Z</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                        </select>
+                    </div>
+                    <div class="filter-action">
+                        <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary" title="Reset Filter"><i class="bi bi-arrow-clockwise"></i></a>
                     </div>
                 </form>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle" id="customersTable">
-                        <thead>
+                    <table class="table table-hover align-middle border-0" id="customersTable">
+                        <thead class="text-secondary" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
                             <tr>
                                 <th>Nama</th>
                                 <th>Email</th>
@@ -38,18 +43,18 @@
                         <tbody>
                             @foreach($customers as $customer)
                                 <tr>
-                                    <td>{{ $customer->name }}</td>
-                                    <td>{{ $customer->email }}</td>
-                                    <td>{{ $customer->phone }}</td>
-                                    <td>{{ Str::limit($customer->address, 70) }}</td>
+                                    <td data-label="Nama">{{ $customer->name }}</td>
+                                    <td data-label="Email">{{ $customer->email }}</td>
+                                    <td data-label="Telepon">{{ $customer->phone }}</td>
+                                    <td data-label="Alamat">{{ Str::limit($customer->address, 70) }}</td>
                                     <td class="text-end">
                                         <div class="crud-actions" role="group" aria-label="Aksi pelanggan">
-                                        <a href="{{ route('customers.show', $customer) }}" class="btn btn-outline-secondary crud-action-btn" title="Lihat detail" aria-label="Lihat detail pelanggan"><i class="bi bi-eye"></i></a>
-                                        <a href="{{ route('customers.edit', $customer) }}" class="btn btn-outline-primary crud-action-btn" title="Edit" aria-label="Edit pelanggan"><i class="bi bi-pencil-square"></i></a>
-                                        <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Hapus pelanggan ini?');">
+                                        <a href="{{ route('customers.show', $customer) }}" class="btn bg-secondary bg-opacity-10 text-secondary border-0 rounded-circle crud-action-btn" title="Lihat detail" aria-label="Lihat detail pelanggan"><i class="bi bi-eye"></i></a>
+                                        <a href="{{ route('customers.edit', $customer) }}" class="btn bg-primary bg-opacity-10 text-primary border-0 rounded-circle crud-action-btn" title="Edit" aria-label="Edit pelanggan"><i class="bi bi-pencil-square"></i></a>
+                                        <form action="{{ route('customers.destroy', $customer) }}" method="POST" onsubmit="return confirm('Hapus pelanggan ini?');" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger crud-action-btn" title="Hapus" aria-label="Hapus pelanggan"><i class="bi bi-trash"></i></button>
+                                            <button type="submit" class="btn bg-danger bg-opacity-10 text-danger border-0 rounded-circle crud-action-btn" title="Hapus" aria-label="Hapus pelanggan"><i class="bi bi-trash"></i></button>
                                         </form>
                                         </div>
                                     </td>
@@ -65,17 +70,11 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            $(document).ready(function () {
-                $('#customersTable').DataTable({
-                    paging: false,
-                    info: false,
-                    searching: false,
-                    responsive: true,
-                    ordering: true,
-                });
-            });
-        </script>
+    @push('styles')
+<style>
+.table > :not(caption) > * > * {
+    padding: 1rem 1rem;
+}
+</style>
     @endpush
 </x-app-layout>

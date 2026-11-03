@@ -313,12 +313,119 @@
                 updateThemeUI(newTheme);
             });
         }
+        
+        // Global Real-time Search & Filter via AJAX
+        const searchForms = document.querySelectorAll('form[method="GET"]');
+        searchForms.forEach(searchForm => {
+            // Check if form has a search input or filter to attach AJAX
+            const hasInputs = searchForm.querySelector('input[name="q"], select');
+            if (!hasInputs) return;
+
+            let searchTimer;
+            
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+
+            searchForm.querySelectorAll('input, select').forEach(element => {
+                const eventType = element.tagName === 'SELECT' ? 'change' : 'input';
+                
+                element.addEventListener(eventType, function() {
+                    clearTimeout(searchTimer);
+                    
+                    searchTimer = setTimeout(() => {
+                        const url = new URL(window.location.href);
+                        const formData = new FormData(searchForm);
+                        
+                        // Clear existing params to avoid keeping old ones if they are removed from form
+                        const keysToRemove = [];
+                        for (let key of url.searchParams.keys()) {
+                            if (key !== 'page') keysToRemove.push(key);
+                        }
+                        keysToRemove.forEach(k => url.searchParams.delete(k));
+
+                        // Set new params
+                        for (let [key, value] of formData.entries()) {
+                            if (value) {
+                                url.searchParams.set(key, value);
+                            }
+                        }
+                        url.searchParams.delete('page'); // Reset to first page
+                        
+                        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            
+                            // Replace table content
+                            const currentTableContainer = document.querySelector('.table-responsive');
+                            const newTableContainer = doc.querySelector('.table-responsive');
+                            
+                            if (currentTableContainer && newTableContainer) {
+                                currentTableContainer.innerHTML = newTableContainer.innerHTML;
+                            }
+                            
+                            // Replace Pagination
+                            const currentPagination = document.querySelector('.pagination')?.closest('div, nav');
+                            const newPagination = doc.querySelector('.pagination')?.closest('div, nav');
+                            
+                            if (currentPagination && newPagination) {
+                                currentPagination.innerHTML = newPagination.innerHTML;
+                            } else if (currentPagination && !newPagination) {
+                                currentPagination.innerHTML = '';
+                            } else if (!currentPagination && newPagination && currentTableContainer) {
+                                const pagWrapper = document.createElement('div');
+                                pagWrapper.className = 'mt-3';
+                                pagWrapper.innerHTML = newPagination.innerHTML;
+                                currentTableContainer.parentNode.insertBefore(pagWrapper, currentTableContainer.nextSibling);
+                            }
+                            
+                            // Update URL silently
+                            window.history.replaceState({}, '', url);
+                        })
+                        .catch(error => console.error('Search error:', error));
+                    }, 300); // 300ms debounce
+                });
+            });
+        });
     });
 </script>
 
 
 @stack('scripts')
 
+
+<!-- Global Loader -->
+<div id="globalLoader" class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white" style="z-index: 9999; opacity: 0.7; display: none !important; transition: opacity 0.2s;">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Memuat...</span>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('globalLoader');
+    
+    document.addEventListener('submit', function(e) {
+        if (e.target && e.target.classList && !e.target.classList.contains('no-loader')) {
+            loader.style.setProperty('display', 'flex', 'important');
+        }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && !link.href.includes('#') && !link.href.startsWith('javascript') && link.target !== '_blank' && !link.classList.contains('no-loader') && !link.hasAttribute('download')) {
+            loader.style.setProperty('display', 'flex', 'important');
+        }
+    }, true);
+});
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        document.getElementById('globalLoader').style.setProperty('display', 'none', 'important');
+    }
+});
+</script>
 
 </body>
 

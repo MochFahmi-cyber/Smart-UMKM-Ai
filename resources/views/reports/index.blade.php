@@ -76,7 +76,7 @@
         <div class="row g-4 mb-4">
             <div class="col-lg-5">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white"><strong><i class="bi bi-wallet2 me-2"></i>Catat Mutasi Kas</strong></div>
+                    <div class="card-header bg-transparent"><strong><i class="bi bi-wallet2 me-2"></i>Catat Mutasi Kas</strong></div>
                     <div class="card-body">
                         <form action="{{ route('reports.cash-flow.store') }}" method="POST">
                             @csrf
@@ -106,7 +106,7 @@
 
             <div class="col-lg-7">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white"><strong><i class="bi bi-file-earmark-bar-graph me-2"></i>Ringkasan Periode</strong></div>
+                    <div class="card-header bg-transparent"><strong><i class="bi bi-file-earmark-bar-graph me-2"></i>Ringkasan Periode</strong></div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between border-bottom py-2"><span>Penjualan kasir</span><strong class="text-success">+ Rp {{ number_format($sales, 0, ',', '.') }}</strong></div>
                         <div class="d-flex justify-content-between border-bottom py-2"><span>Penambahan dana</span><strong class="text-success">+ Rp {{ number_format($capital, 0, ',', '.') }}</strong></div>
@@ -142,11 +142,11 @@
         </div>
 
         <div class="card shadow-sm border-0 report-history-card">
-            <div class="card-header bg-white"><strong><i class="bi bi-clock-history me-2"></i>Histori Mutasi</strong></div>
+            <div class="card-header bg-transparent"><strong><i class="bi bi-clock-history me-2"></i>Histori Mutasi</strong></div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light"><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Kasir</th><th class="text-end">Masuk</th><th class="text-end">Keluar</th></tr></thead>
+                        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Kasir</th><th class="text-end">Masuk</th><th class="text-end">Keluar</th></tr></thead>
                         <tbody>
                             @forelse($entries as $entry)
                                 <tr>
@@ -173,7 +173,7 @@
     @push('styles')
         <style>
             .business-health-card {
-                background: linear-gradient(135deg, #eefbf5 0%, #f4f8ff 55%, #fffaf0 100%);
+                /* background: linear-gradient(135deg, #eefbf5 0%, #f4f8ff 55%, #fffaf0 100%); */
             }
             .business-health-emoji {
                 display: grid;
@@ -181,7 +181,7 @@
                 flex: 0 0 3rem;
                 height: 3rem;
                 border-radius: 1rem;
-                background: #fff;
+                background: var(--bs-tertiary-bg);
                 box-shadow: 0 .25rem 1rem rgba(15, 23, 42, .08);
                 font-size: 1.5rem;
             }
@@ -193,11 +193,11 @@
                 padding: 1rem;
                 border: 1px solid rgba(148, 163, 184, .25);
                 border-radius: .85rem;
-                background: rgba(255, 255, 255, .8);
+                background: var(--bs-tertiary-bg);
             }
             .business-health-metric span, .business-health-metric small { color: #64748b; font-size: .8rem; }
             .business-health-metric strong { margin: .35rem 0; font-size: 1.05rem; }
-            .business-health-advice { padding: 1rem 1.2rem; border-radius: .85rem; background: #fff; border-left: 4px solid #20a464; }
+            .business-health-advice { padding: 1rem 1.2rem; border-radius: .85rem; background: var(--bs-tertiary-bg); border-left: 4px solid #20a464; }
             .business-health-advice ul { padding-left: 1.1rem; }
             .business-health-advice li + li { margin-top: .45rem; }
             .cash-type {
@@ -217,7 +217,7 @@
             .cash-type--expense { background: #dc3545; }
 
             .report-export-card .card-body {
-                background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+                /* background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%); */
             }
             .report-export-actions form { margin: 0; }
             .report-date-filter input[type="date"] {
@@ -233,6 +233,9 @@
             .report-history-card .card-header { padding: 1rem 1.5rem; }
             .report-history-card .table th { white-space: nowrap; }
             .report-history-card .table td { vertical-align: middle; }
+            .table > :not(caption) > * > * {
+                padding: 1rem 1rem;
+            }
             .report-pagination .pagination {
                 justify-content: center;
                 margin-bottom: 0;
@@ -256,9 +259,9 @@
                 .report-history-card .table tbody tr:not(.report-empty-state) {
                     margin-bottom: .75rem;
                     padding: .75rem 1rem;
-                    border: 1px solid #e9eef5;
+                    border: 1px solid var(--bs-border-color);
                     border-radius: .75rem;
-                    background: #fff;
+                    background: var(--bs-tertiary-bg);
                     box-shadow: 0 .2rem .6rem rgba(15, 23, 42, .04);
                 }
                 .report-history-card .table tbody td:not([colspan]) {

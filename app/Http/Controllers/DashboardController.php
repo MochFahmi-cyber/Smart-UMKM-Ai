@@ -15,13 +15,21 @@ class DashboardController extends Controller
     public function index()
     {
         $today = Carbon::today();
+        $storeId = auth()->user()->store_id;
 
-        $salesToday = (float) Transaction::whereDate('created_at', $today)->sum('total');
-        $transactionsToday = Transaction::whereDate('created_at', $today)->count();
-        $productsCount = Product::count();
-        $lowStockProducts = Product::where('stock', '<=', 5)->orderBy('stock')->limit(5)->get();
+        $stats = [
+            'total_products' => \App\Models\Product::where('store_id', $storeId)->count(),
+            'active_products' => \App\Models\Product::where('store_id', $storeId)->where('active', true)->count(),
+            'low_stock' => \App\Models\Product::where('store_id', $storeId)->where('stock', '<', 5)->count(),
+            'total_sales' => \App\Models\Transaction::where('store_id', $storeId)->whereIn('status', ['completed'])->sum('total'),
+        ];
 
-        $salesSummary = Transaction::selectRaw('DATE(created_at) as date, SUM(total) as total')
+        $salesToday = (float) Transaction::where('store_id', $storeId)->whereDate('created_at', $today)->sum('total');
+        $transactionsToday = Transaction::where('store_id', $storeId)->whereDate('created_at', $today)->count();
+        $productsCount = Product::where('store_id', $storeId)->count();
+        $lowStockProducts = Product::where('store_id', $storeId)->where('stock', '<=', 5)->orderBy('stock')->limit(5)->get();
+
+        $salesSummary = Transaction::where('store_id', $storeId)->selectRaw('DATE(created_at) as date, SUM(total) as total')
             ->whereBetween('created_at', [Carbon::now()->subDays(6)->startOfDay(), Carbon::now()->endOfDay()])
             ->groupBy('date')
             ->orderBy('date')
@@ -34,7 +42,10 @@ class DashboardController extends Controller
         // ==========================================================
         // 1. ANALISIS PRODUK TERLARIS (Top 5)
         // ==========================================================
-        $topProducts = TransactionDetail::select('product_id')
+        $topProducts = TransactionDetail::whereHas('transaction', function($query) use ($storeId) {
+                $query->where('store_id', $storeId);
+            })
+            ->select('product_id')
             ->selectRaw('SUM(quantity) as total_qty')
             ->selectRaw('SUM(subtotal) as total_revenue')
             ->with('product')
@@ -50,7 +61,7 @@ class DashboardController extends Controller
         // ==========================================================
         // 2. ANALISIS TREN PENJUALAN + INSIGHT
         // ==========================================================
-        $salesTrend = Transaction::selectRaw('DATE(created_at) as date, SUM(total) as total, COUNT(*) as count')
+        $salesTrend = Transaction::where('store_id', $storeId)->selectRaw('DATE(created_at) as date, SUM(total) as total, COUNT(*) as count')
             ->whereBetween('created_at', [Carbon::now()->subDays(6)->startOfDay(), Carbon::now()->endOfDay()])
             ->groupBy('date')
             ->orderBy('date')
@@ -59,7 +70,7 @@ class DashboardController extends Controller
         $trendTotals = $salesTrend->pluck('total')->map(fn ($v) => (float) $v);
 
         $last7 = $trendTotals->sum();
-        $prev7 = (float) Transaction::whereBetween('created_at', [Carbon::now()->subDays(13)->startOfDay(), Carbon::now()->subDays(7)->startOfDay()])
+        $prev7 = (float) Transaction::where('store_id', $storeId)->whereBetween('created_at', [Carbon::now()->subDays(13)->startOfDay(), Carbon::now()->subDays(7)->startOfDay()])
             ->sum('total');
 
         $growth = $prev7 > 0 ? round((($last7 - $prev7) / $prev7) * 100, 1) : ($last7 > 0 ? 100 : 0);
@@ -130,9 +141,10 @@ class DashboardController extends Controller
     protected function buildStockPredictions(): array
     {
         $period = 30;
+        $storeId = auth()->user()->store_id;
         $since = Carbon::now()->subDays($period)->startOfDay();
 
-        return Product::where('stock', '>', 0)
+        return Product::where('store_id', $storeId)->where('stock', '>', 0)
             ->orderBy('stock')
             ->limit(5)
             ->get()

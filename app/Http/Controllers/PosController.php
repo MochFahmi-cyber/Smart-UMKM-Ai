@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTransactionRequest;
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
@@ -16,13 +18,21 @@ use Illuminate\Validation\ValidationException;
 
 class PosController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::where('active', true)->orderBy('name')->limit(50)->get();
-        $customers = Customer::orderBy('name')->get();
+        $categories = Category::where('store_id', auth()->user()->store_id)->orderBy('name')->get();
+
+        $query = Product::where('store_id', auth()->user()->store_id)->where('active', true);
+
+        if (request('category')) {
+            $query->where('category_id', request('category'));
+        }
+
+        $products = $query->orderBy('name')->limit(50)->get();
+        $customers = Customer::where('store_id', auth()->user()->store_id)->orderBy('name')->get();
         $cart = Session::get('pos.cart', []);
 
-        return view('pos.index', compact('products', 'customers', 'cart'));
+        return view('pos.index', compact('products', 'categories', 'customers', 'cart'));
     }
 
     public function addToCart(Request $request)
@@ -123,6 +133,8 @@ class PosController extends Controller
             return back()->with('error', 'Jumlah uang pelanggan kurang.');
         }
 
+        $transaction = null;
+
         try {
             DB::transaction(function () use ($request, $items, $total, $paid, $change, $paymentMethod, $qrisImage, &$transaction) {
                 $products = [];
@@ -143,6 +155,7 @@ class PosController extends Controller
                 }
 
                 $transaction = Transaction::create([
+                    'store_id' => auth()->user()->store_id,
                     'user_id' => auth()->id(),
                     'customer_id' => $request->customer_id,
                     'payment_method' => $paymentMethod,
@@ -174,9 +187,13 @@ class PosController extends Controller
         }
 
         Session::forget('pos.cart');
-        Session::put('pos.last_transaction', $transaction->id);
+        
+        if ($transaction) {
+            Session::put('pos.last_transaction', $transaction->id);
+            return redirect()->route('pos.receipt', $transaction)->with('success', 'Transaksi berhasil disimpan.');
+        }
 
-        return redirect()->route('pos.receipt', $transaction)->with('success', 'Transaksi berhasil disimpan.');
+        return back()->with('error', 'Gagal menyimpan transaksi.');
     }
 
     public function receipt(Transaction $transaction)

@@ -25,7 +25,14 @@ class User extends Authenticatable
         'password',
         'role',
         'premium_level',
+        'store_id',
         'phone',
+        'is_premium',
+        'bank_name',
+        'bank_account',
+        'bank_account_name',
+        'qris_image',
+        'qris_active'
     ];
 
     /**
@@ -55,5 +62,18 @@ class User extends Authenticatable
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+    public function customerCashierTokens()
+    {
+        return $this->hasMany(CustomerCashierToken::class);
+    }
+    public function customers()
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
     }
 }

@@ -14,7 +14,7 @@ class CashFlow extends Model
     public const EXPENSE = 'expense';
     public const STOCK_PURCHASE = 'stock_purchase';
 
-    protected $fillable = ['user_id', 'product_id', 'type', 'amount', 'description'];
+    protected $fillable = ['user_id', 'product_id', 'store_id', 'type', 'amount', 'description'];
 
     protected $casts = ['amount' => 'decimal:2'];
 
@@ -26,5 +26,10 @@ class CashFlow extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
     }
 }

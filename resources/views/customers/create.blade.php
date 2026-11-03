@@ -17,19 +17,19 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Nama</label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
+                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Contoh: Budi Santoso" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" value="{{ old('email') }}" class="form-control">
+                            <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="contoh@email.com">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Telepon</label>
-                            <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
+                            <input type="text" name="phone" value="{{ old('phone') }}" class="form-control" placeholder="Misal: 0812...">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Alamat</label>
-                            <input type="text" name="address" value="{{ old('address') }}" class="form-control">
+                            <input type="text" name="address" value="{{ old('address') }}" class="form-control" placeholder="Alamat lengkap pengiriman">
                         </div>
                     </div>
                     <div class="mt-4 d-flex gap-2">

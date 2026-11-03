@@ -13,7 +13,7 @@
     </x-slot>
 
     <div class="container-fluid">
-        <div class="card border-0 shadow-sm overflow-hidden" style="background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);">
+        <div class="card border-0 shadow-sm overflow-hidden">
             <div class="card-body p-0">
                 <div class="p-4 border-bottom border-light">
                     <div class="row g-3 align-items-center">
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <div class="chat-shell p-3 p-md-4" id="chatShell" style="overflow-y: auto; background: #f8fbff;">
+                <div class="chat-shell p-3 p-md-4" id="chatShell" style="overflow-y: auto;">
                     @php($messages = $messages ?? [])
                     @if (empty($messages))
                         <div class="d-flex justify-content-start mb-3">
@@ -86,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="border-top bg-white p-3 p-md-4">
+                <div class="border-top bg-transparent p-3 p-md-4">
                     <form id="chatForm" class="d-flex gap-2 align-items-end">
                         @csrf
                         <div class="flex-grow-1">
@@ -128,8 +128,8 @@
             }
 
             .chat-bubble--ai {
-                background: #ffffff;
-                color: #0f172a;
+                background: var(--bs-tertiary-bg);
+                color: var(--bs-body-color);
                 border-bottom-left-radius: 0.35rem;
             }
 
